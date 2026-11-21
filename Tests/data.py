@@ -1,5 +1,7 @@
 import os
+from dotenv import load_dotenv
 
+load_dotenv()
 VALID_EMAIL = os.getenv("TEST_USER_EMAIL")
 VALID_PASSWORD = os.getenv("TEST_USER_PASSWORD")
 WRONG_PASSWORD = os.getenv("TEST_USER_WRONG_PASSWORD")

@@ -1,0 +1,3 @@
+TEST_USER_EMAIL=nicoleshefer@gmail.com
+TEST_USER_PASSWORD=nicoleshefer
+TEST_USER_WRONG_PASSWORD=wrong_password_123
