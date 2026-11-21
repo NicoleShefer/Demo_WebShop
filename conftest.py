@@ -10,3 +10,4 @@ def driver():
     driver.get("https://demowebshop.tricentis.com/")
     yield driver
     driver.quit()
+    
