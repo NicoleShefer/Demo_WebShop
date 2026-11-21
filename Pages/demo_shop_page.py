@@ -1,7 +1,6 @@
 from selenium.webdriver.common.by import By
-
 from Pages.demo_base_page import BasePage
-
+from selenium.common.exceptions import TimeoutException
 
 class ShopPage(BasePage):
     CATEGORY_LINK = "(//ul[@class='top-menu']//a[normalize-space()='{}'])[1]"
@@ -19,7 +18,7 @@ class ShopPage(BasePage):
     BILLING_PHONE = (By.ID, "BillingNewAddress_PhoneNumber")
 
     STEP_BUTTON = "//div[@id='{}-buttons-container']//input[@type='button']"
-    CHECKOUT_STEPS = ["billing", "shipping-method", "payment-method",
+    CHECKOUT_STEPS = ["billing", "shipping", "shipping-method", "payment-method",
                       "payment-info", "confirm-order"]
     ORDER_SUCCESS = (By.XPATH, "//div[@class='section order-completed']//strong")
 
@@ -51,13 +50,22 @@ class ShopPage(BasePage):
             self.input_text(self.BILLING_ZIP, address["zip"])
             self.input_text(self.BILLING_PHONE, address["phone"])
 
-    def continue_step(self, step):
-        self.click_element((By.XPATH, self.STEP_BUTTON.format(step)))
+    def continue_step(self, step, required=True):
+        locator = (By.XPATH, self.STEP_BUTTON.format(step))
+        if not required and not self.is_element_visible(locator, timeout=3):
+            return  # шаг пропущен сайтом, идём дальше
+        try:
+            self.click_element(locator)
+        except TimeoutException:
+            self.driver.save_screenshot(f"fail_{step}.png")
+            print(f"FAILED at step: {step}, url: {self.driver.current_url}")
+            raise
 
     def complete_checkout(self, address):
         self.fill_billing_address_if_needed(address)
         for step in self.CHECKOUT_STEPS:
-            self.continue_step(step)
+            self.continue_step(step, required=(step != "shipping"))
 
     def get_order_success_text(self):
         return self.get_text(self.ORDER_SUCCESS)
+
